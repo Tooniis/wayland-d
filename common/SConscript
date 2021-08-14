@@ -1,0 +1,15 @@
+Import("env")
+
+common_env = env.Clone()
+
+common_env.Append(DPATH = ["."])
+common_env.Append(DFLAGS = "-fPIC")
+
+util = common_env.Library(
+	target = "wayland-util",
+	source = [
+		Glob("wayland/native/*.d"),
+		Glob("wayland/util/*.d")
+	]
+)
+Export("util")

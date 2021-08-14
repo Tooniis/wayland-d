@@ -1,0 +1,39 @@
+Import("env")
+Import("install")
+
+client_env = env.Clone()
+
+client_env.Append(DPATH = ["source", "../common"])
+client_env.Append(DFLAGS = "-fversion=WlStatic")
+
+Import("util")
+client_env.Append(LIBS = util)
+
+client_env.Command(source = "",
+	target = "source/wayland/client/protocol.d",
+	action = Action(
+		"bash client/gen_protocol.sh > /dev/null",
+		"  WLSCAN  $TARGET"
+	)
+)
+
+client = client_env.SharedLibrary(
+	target = "wayland-client",
+	source = [
+		Glob("source/wayland/native/*.d"),
+		Glob("source/wayland/client/*.d")
+	],
+)
+env.Alias("client", client)
+
+install_lib = client_env.InstallAs(
+	target = "/usr/lib/libwayland-d-client.so",
+	source = client
+)
+install_include = client_env.Install(
+	target = "$PREFIX/include/d/wayland/client",
+	source = Glob("source/wayland/client/*.d")
+)
+client_install = [install_lib,  install_include]
+env.Alias("install_client", client_install)
+install.append(client_install)

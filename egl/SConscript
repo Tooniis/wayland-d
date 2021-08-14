@@ -1,0 +1,34 @@
+Import("env")
+Import("install")
+
+egl_env = env.Clone()
+
+egl_env.Append(DPATH = ["source", "../client/source", "../common"])
+egl_env.Append(DFLAGS = "-fversion=WlStatic")
+
+Import("util")
+egl_env.Append(LIBS = util)
+
+egl_env.Depends("source/wayland/egl.o", "../client/source/wayland/client/protocol.d")
+
+egl = egl_env.SharedLibrary(
+	target = "wayland-egl",
+	source = [
+		Glob("source/wayland/native/*.d"),
+		Glob("source/wayland/*.d")
+	]
+)
+
+env.Alias("egl", egl)
+
+install_lib = egl_env.InstallAs(
+	target = "$PREFIX/lib/libwayland-d-egl.so",
+	source = egl
+)
+install_include = egl_env.Install(
+	target = "$PREFIX/include/d/wayland/egl",
+	source = Glob("source/wayland/*.d")
+)
+egl_install = [install_lib,  install_include]
+env.Alias("install_egl", egl_install)
+install.append(egl_install)

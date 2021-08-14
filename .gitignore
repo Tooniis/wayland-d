@@ -1,6 +1,9 @@
 .dub/
 dub.selections.json
+.sconsign.dblite
 *.a
+*.o
+*.so
 *.bin
 protocol.d
 

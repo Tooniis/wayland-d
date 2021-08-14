@@ -1,0 +1,39 @@
+Import("env")
+Import("install")
+
+server_env = env.Clone()
+
+server_env.Append(DPATH = ["source", "../common"])
+server_env.Append(DFLAGS = "-fversion=WlStatic")
+
+Import("util")
+server_env.Append(LIBS = util)
+
+server_env.Command(source = "",
+	target = "source/wayland/server/protocol.d",
+	action = Action(
+		"bash server/gen_protocol.sh > /dev/null",
+		"  WLSCAN  $TARGET"
+	)
+)
+
+server = server_env.SharedLibrary(
+	target = "wayland-server",
+	source = [
+		Glob("source/wayland/native/*.d"),
+		Glob("source/wayland/server/*.d")
+	]
+)
+env.Alias("server", server)
+
+install_lib = server_env.InstallAs(
+	target = "/usr/lib/libwayland-d-server.so",
+	source = server
+)
+install_include = server_env.Install(
+	target = "$PREFIX/include/d/wayland/server",
+	source = Glob("source/wayland/server/*.d")
+)
+server_install = [install_lib,  install_include]
+env.Alias("install_server", server_install)
+install.append(server_install)
