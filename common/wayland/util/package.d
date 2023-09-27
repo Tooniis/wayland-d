@@ -170,8 +170,6 @@ struct WlFixed
     */
     double opCast(T : double)() const
     {
-        DI u;
-        u.i = ((1023L + 44L) << 52) + (1L << 51) + f;
-        return u.d - (3L << 43);
+        return _raw / 256.0;
     }
 }
